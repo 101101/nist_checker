@@ -6,14 +6,14 @@ BASE_URL  : "services.nvd.nist.gov/rest/json/cves/1.0?"
 ###### for corresponding CVEs to report / alert  
 KEYWORD   : 
   #### OS  
-  - microsoft
+  - windows
   - linux
-  - apple
 
   #### Cloud & Platform  
   - azure
   - aws
   - vmware
+  - google
 
   #### Application  
   - apache
@@ -21,27 +21,19 @@ KEYWORD   :
 
   #### Storage & Backup  
   - veeam
-  - cloudian
-  - nimble
 
   #### Database  
   - sql
+  - oracle
 
   #### Monitoring & Notification  
-  - logicmonitor
-  - zabbix
-  - nagios
+  - prometheus
   - pagerduty
-  - kentik
-  - darktrace
   - servicenow
-  - elastic
 
   #### Network  
   - cisco
-  - juniper
-  - paloalto
-  - fortinet
+
   
 
 
