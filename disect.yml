@@ -1,0 +1,21 @@
+---
+# use the uri module to get json info  
+## Ref: https://nvd.nist.gov/developers/vulnerabilities  
+## Test URL: https://services.nvd.nist.gov/rest/json/cves/1.0?cvssV3Severity=CRITICAL&keyword=apache  
+
+
+## Get the data from output
+- name: "Disect the response for meaningful data"
+  set_fact:
+    cve_id            : "{{ item.cve.CVE_data_meta.ID }}"
+    cve_assigner      : "{{ item.cve.CVE_data_meta.ASSIGNER }}"
+    cve_pub_date      : "{{ item.publishedDate }}"
+    cve_description   : "{{ item.cve.description.description_data[0].value }}"
+    cve_severity      : "{{ item.impact.baseMetricV3.cvssV3.baseSeverity }}"
+    cve_attack_vector : "{{ item.impact.baseMetricV3.cvssV3.attackVector }}"
+
+- include: report.yml
+  with_items: "{{ KEYWORD }}"
+  loop_control:
+    loop_var: kwd_item
+

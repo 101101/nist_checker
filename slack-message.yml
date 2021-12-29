@@ -1,0 +1,39 @@
+---
+####    Send Message to Slack    ####  
+#### https://docs.ansible.com/ansible/latest/collections/community/general/slack_module.html  
+###### To install it, use: ansible-galaxy collection install community.general  
+
+
+##########################################################  
+####  This Code gets removed  
+####  IF there will be SNOW integration  
+##########################################################  
+
+- name: include keys from file
+  include_vars: keys.yml
+
+- name: "Send CVEs to Slack"
+  community.general.slack:
+    token: '{{ slack_token }}'
+    channel: "{{ slack_channel }}"
+    domain: "{{ slack_domain }}"
+    ## Color value specified should be either one of ['normal', 'good', 'warning', 'danger'] or  
+    ## any valid hex value with length 3 or 6."  
+    color: "danger"
+    link_names: 1
+    parse: "full"
+    msg: "Keyword: *{{ kwd_item }}* returned - \n*CVE* : {{ cve_id }}\n*Severity* : {{ cve_severity }}\n*Published* : {{ cve_pub_date }}\n```Description : {{ cve_description }}```"
+  when: output.json.totalResults != 0
+
+- name: "No Results to Slack"
+  community.general.slack:
+    token: '{{ slack_token }}'
+    channel: "{{ slack_channel }}"
+    domain: "{{ slack_domain }}"
+    ## Color value specified should be either one of ['normal', 'good', 'warning', 'danger'] or  
+    ## any valid hex value with length 3 or 6."  
+    color: "good"
+    link_names: 1
+    parse: "full"
+    msg: "Keyword search returned - No matches"
+  when: output.json.totalResults == 0

@@ -1,0 +1,92 @@
+---
+# Send alerts to SNOW  
+
+- name: "include keys from file"
+  include_vars: keys.yml
+
+- name: "Create SNOW alert for {{ cve_id }}"
+  uri:
+    url: "https://deftdev.service-now.com/api/sece/ansible_alert"
+    method            : POST
+    return_content    : yes
+    force_basic_auth  : yes
+    ### Use Secrets configured in your Repo  
+    # url_username      : ${{ secrets.SNOW_UID }}
+    # url_password      : ${{ secrets.SNOW_PWD }}
+    ### Use Secrets from your keys.yml  
+    url_username      : "{{ SNOW_UID }}"
+    url_password      : "{{ SNOW_PWD }}"
+    body_format       : json
+    headers : 
+      content_type    : application/json
+    body:
+      event_action: "trigger"
+      ## Deduplication key for correlating triggers and resolves.  
+      ## The maximum permitted length of this property is 255 characters.  
+      dedup_key: "{{ cve_id }}-{{ cve_pub_date }}"
+      payload:
+        summary: "{{ cve_id }} identified for keyword: {{ kwd_item }}"
+        source: "Ansible"
+        ## critical, error, warning or info  
+        severity: "error"
+        #timestamp: ""
+        ## Logical grouping of components of a service, for example app-stack  
+        group: "{{ kwd_item }}"
+        ## The class/type of the event, for example ping failure or cpu load  
+        class: "CVE"
+        ## Impacted Team for the alert  
+        team: "Information Security"
+        ## Additional details about the event and affected system  
+        custom_details: {
+          summary           : "{{ cve_id }} returned for Keyword: {{ kwd_item }}\n*Published* : {{ cve_pub_date }}\nDescription : {{ cve_description }}",
+          keyword           : "{{ kwd_item }}",
+          action required   : "Investigate CVE",
+          cve_id            : "{{ item.cve.CVE_data_meta.ID }}",
+          cve_assigner      : "{{ item.cve.CVE_data_meta.ASSIGNER }}",
+          cve_pub_date      : "{{ item.publishedDate }}",
+          cve_description   : "{{ item.cve.description.description_data[0].value }}",
+          cve_severity      : "{{ item.impact.baseMetricV3.cvssV3.baseSeverity }}",
+          cve_attack_vector : "{{ item.impact.baseMetricV3.cvssV3.attackVector }}"
+          }
+      ## List of links to include.  
+      links: [{
+        href: "{{ item.cve.references.reference_data[0].url }}",
+        text: "Reference URL"
+        }]
+    status_code: 
+      - 100
+      - 200
+      - 201
+      - 202
+  register: alert_created
+
+
+## To bypass alerting and go straight to creating an Incident  
+# - name: "Create INC"
+#   servicenow.servicenow.snow_record:
+#     username: "{{ SNOW_UID }}"
+#     password: "{{ SNOW_PWD }}"
+#     instance: deftdev
+#     state: present
+#     data:
+#       short_description : "{{ cve_id }} returned for Keyword: {{ kwd_item }}\nPublished : {{ cve_pub_date }}\nDescription : {{ cve_description }}",
+#       keyword           : "{{ kwd_item }}",
+#       action required   : "Investigate CVE",
+#       cve_id            : "{{ item.cve.CVE_data_meta.ID }}",
+#       cve_assigner      : "{{ item.cve.CVE_data_meta.ASSIGNER }}",
+#       cve_pub_date      : "{{ item.publishedDate }}",
+#       cve_description   : "{{ item.cve.description.description_data[0].value }}",
+#       cve_severity      : "{{ item.impact.baseMetricV3.cvssV3.baseSeverity }}",
+#       cve_attack_vector : "{{ item.impact.baseMetricV3.cvssV3.attackVector }}"
+#       priority: 2
+#       severity: 2
+#   register: alert_created
+
+
+## Log CVEs with corresponding Alert_ID & Sys_ID  
+- name: "Log it"
+  debug:
+    msg: 
+      - "CVE      : {{ cve_id }}"
+      - "Alert_ID : {{ alert_created.json.result.number }}"
+      - "Sys_ID   : {{ alert_created.json.result.sys_id }}"

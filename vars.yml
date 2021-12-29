@@ -1,0 +1,52 @@
+
+
+BASE_URL  : "services.nvd.nist.gov/rest/json/cves/1.0?"
+
+#### List of keywords to check against the NIST API  
+###### for corresponding CVEs to report / alert  
+KEYWORD   : 
+  #### OS  
+  - microsoft
+  - linux
+  - apple
+
+  #### Cloud & Platform  
+  - azure
+  - aws
+  - vmware
+
+  #### Application  
+  - apache
+  - java
+
+  #### Storage & Backup  
+  - veeam
+  - cloudian
+  - nimble
+
+  #### Database  
+  - sql
+
+  #### Monitoring & Notification  
+  - logicmonitor
+  - zabbix
+  - nagios
+  - pagerduty
+  - kentik
+  - darktrace
+  - servicenow
+  - elastic
+
+  #### Network  
+  - cisco
+  - juniper
+  - paloalto
+  - fortinet
+  
+
+
+SEVERITY  : "CRITICAL"
+
+
+
+

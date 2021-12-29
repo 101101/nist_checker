@@ -1,0 +1,42 @@
+---
+# use the uri module to get json info  
+## Ref: https://nvd.nist.gov/developers/vulnerabilities  
+## Test URL: https://services.nvd.nist.gov/rest/json/cves/1.0?cvssV3Severity=CRITICAL&keyword=apache  
+
+- name: "Set vars for pubStartDate & pubEndDate to show CVEs from the last 24h"
+  set_fact:
+    cve_pub_start_date  : "{{ ('%Y-%m-%d %H:%M:%S' | strftime((ansible_date_time.epoch |int - 86400) | string())).split(' ')[0] }}T"
+    cve_pub_start_time  : "{{ ansible_date_time.time }}:000%20UTC-05:00"    
+    cve_pub_end_date    : "{{ ansible_date_time.date }}T"
+
+
+- name          : "Get content from NIST"
+  uri           :
+    url         : "https://{{ BASE_URL }}cvssV3Severity={{ SEVERITY }}&pubStartDate={{ cve_pub_start_date }}{{ cve_pub_start_time }}&pubEndDate={{ cve_pub_end_date }}{{ cve_pub_start_time }}"
+    # url         : "https://services.nvd.nist.gov/rest/json/cves/1.0?cvssV3Severity=CRITICAL&pubStartDate=2021-12-19T14:48:02:000%20UTC-05:00&pubEndDate=2021-12-20T14:48:02:000%20UTC-05:00"
+  register      : output
+
+
+- include: disect.yml
+    ## loop through X times   
+  with_items: "{{ output.json.result.CVE_Items }}"
+  when: output.json.totalResults != 0
+
+
+##########################################################  
+####  Code below this line gets removed  
+####  IF there will be SNOW integration  
+##########################################################  
+
+## When no results found
+- name: "NIST results = {{ output.json.totalResults }}"
+  debug:
+    msg: 
+      - "CVE_count: {{ output.json.totalResults }}"
+  when: output.json.totalResults == 0
+  
+
+# Send results to slack    
+# - name: "Send notification to Slack"
+#   include: slack-message.yml
+#   when: output.json.totalResults == 0

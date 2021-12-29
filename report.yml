@@ -1,0 +1,29 @@
+---
+
+## Build the output  
+- name: "CVE result {{ kwd_item }}"
+  debug:
+    msg:
+      - "CVE           : {{ cve_id }}"
+      - "Assigner      : {{ cve_assigner }}"
+      - "Published     : {{ cve_pub_date }}"
+      - "Severity      : {{ cve_severity }}"
+      - "Attack Vector : {{ cve_attack_vector }}"
+      - "Description   : {{ cve_description }}"
+  when: (cve_description | join() | regex_search(kwd_item, multiline=True, ignorecase=True) != none)
+
+
+## Send results to ServiceNOW  
+- name: "Send alert to SNOW"
+  include: snow-alert.yml
+  when: (cve_description | join() | regex_search(kwd_item, multiline=True, ignorecase=True) != none)
+
+##########################################################  
+####  Code below this line gets removed  
+####  IF there will be SNOW integration  
+##########################################################  
+
+## Send result to slack    
+# - name: "Send notification to Slack"
+#   include: slack-message.yml
+#   when: (cve_description | join() | regex_search(kwd_item, multiline=True, ignorecase=True) != none)
