@@ -11,11 +11,11 @@
     return_content    : yes
     force_basic_auth  : yes
     ### Use Secrets configured in your Repo  
-    # url_username      : ${{ secrets.SNOW_UID }}
-    # url_password      : ${{ secrets.SNOW_PWD }}
+    url_username      : ${{ secrets.SNOW_UID }}
+    url_password      : ${{ secrets.SNOW_PWD }}
     ### Use Secrets from your keys.yml  
-    url_username      : "{{ SNOW_UID }}"
-    url_password      : "{{ SNOW_PWD }}"
+    # url_username      : "{{ SNOW_UID }}"
+    # url_password      : "{{ SNOW_PWD }}"
     body_format       : json
     headers : 
       content_type    : application/json
