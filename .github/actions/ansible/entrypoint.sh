@@ -1,1 +1,1 @@
-
+ansible-playbook main.yml
